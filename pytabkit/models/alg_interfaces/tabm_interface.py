@@ -86,10 +86,15 @@ class TabMSubSplitInterface(SingleSplitAlgInterface):
 
         n_train = idxs_list[0].n_train
         n_classes = ds.get_n_classes()
-        cat_cardinalities = ds.tensor_infos['x_cat'].get_cat_sizes().numpy().tolist()
         task_type: TaskType = 'regression' if n_classes == 0 else ('binclass' if n_classes == 2 else 'multiclass')
         device = interface_resources.gpu_devices[0] if len(interface_resources.gpu_devices) >= 1 else 'cpu'
         device = torch.device(device)
+
+        # Specify cat_cardinalities in the config
+        cat_cardinalities = self.config.get('cat_cardinalities', None)
+        if cat_cardinalities is None:
+            # Default behaviour as fallback
+            cat_cardinalities = ds.tensor_infos['x_cat'].get_cat_sizes().numpy().tolist()
 
         if num_emb_n_bins >= n_train:
             print(f'Reducing num_emb_n_bins to be smaller than n_train')
@@ -143,7 +148,11 @@ class TabMSubSplitInterface(SingleSplitAlgInterface):
             # tensor infos are not correct anymore, but might not be used either
 
         # update
-        n_cont_features = ds_parts['train'].tensors['x_cont'].shape[1]
+        # Specify n_cont_features in the config
+        n_cont_features = self.config.get('n_num_features', None)
+        if n_cont_features is None:
+            # Default behaviour as fallback
+            n_cont_features = ds_parts['train'].tensors['x_cont'].shape[1]
 
         Y_train = ds_parts['train'].tensors['y'].clone()
         if task_type == 'regression':
