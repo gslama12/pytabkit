@@ -1808,6 +1808,8 @@ class TabMConstructorMixin:
                  share_training_batches: Optional[bool] = None,
                  val_metric_name: Optional[str] = None,
                  train_metric_name: Optional[str] = None,
+                 n_num_features=Optional[int] = None,  
+                 cat_cardinalities=Optional[List[int]] = None,
                  ):
         """
 
@@ -1907,6 +1909,9 @@ class TabMConstructorMixin:
         self.share_training_batches = share_training_batches
         self.val_metric_name = val_metric_name
         self.train_metric_name = train_metric_name
+
+        self.n_num_features = n_num_features
+        self.cat_cardinalities = cat_cardinalities
 
 
 class TabM_D_Classifier(TabMConstructorMixin, AlgInterfaceClassifier):
