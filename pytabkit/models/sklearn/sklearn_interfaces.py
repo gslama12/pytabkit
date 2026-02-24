@@ -1808,8 +1808,8 @@ class TabMConstructorMixin:
                  share_training_batches: Optional[bool] = None,
                  val_metric_name: Optional[str] = None,
                  train_metric_name: Optional[str] = None,
-                 n_num_features=Optional[int] = None,  
-                 cat_cardinalities=Optional[List[int]] = None,
+                 n_num_features: Optional[int] = None,  
+                 cat_cardinalities:Optional[List[int]] = None,
                  ):
         """
 
