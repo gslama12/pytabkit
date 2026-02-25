@@ -149,7 +149,7 @@ class PreprocessingFactory(FitterFactory):
         if self.config.get('use_mean_center', False):
             tfm_factories.append(MeanCenterFactory(**self.config))
         if self.config.get('use_embedding', False):
-            tfm_factories.append(EncodingFactory(SingleEmbeddingFactory(**self.config)).add_scope('emb'. cat_cardinalitites))
+            tfm_factories.append(EncodingFactory(SingleEmbeddingFactory(**self.config), cat_cardinalities=cat_cardinalities).add_scope('emb'))
         if self.config.get('use_global_scale_normalize', False):
             tfm_factories.append(GlobalScaleNormalizeFactory(**self.config))
 
