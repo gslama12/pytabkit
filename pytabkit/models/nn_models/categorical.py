@@ -145,27 +145,16 @@ class EncodingFitter(Fitter):
 
 
 class EncodingFactory(FitterFactory):
-    def __init__(self, single_encoder_factory, enc_output_name: str = 'x_cont', cat_cardinalities: Optional[List[int]] = None):
+    def __init__(self, single_encoder_factory, enc_output_name: str = 'x_cont'):
         super().__init__()
         self.single_encoder_factory = single_encoder_factory
         self.enc_output_name = enc_output_name
-        self.cat_cardinalities = cat_cardinalities
 
     def _create(self, tensor_infos):
-        print("==> cat_cardinalities in EncodingFactory: ", self.cat_cardinalities)
-        print("==> tensor_infos['x_cat'].get_cat_sizes(): ", tensor_infos['x_cat'].get_cat_sizes() if 'x_cat' in tensor_infos else 'x_cat not in tensor_infos')
-
         if 'x_cat' not in tensor_infos or tensor_infos['x_cat'].get_n_features() == 0:
             return IdentityFitter()
 
-        if self.cat_cardinalities is not None:
-            # use provided cardinalities
-            print("===> Using provided cat_cardinalities: ", self.cat_cardinalities)
-            x_cat_sizes = np.array(self.cat_cardinalities) 
-        else:
-            # default behavior
-            x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
-
+        x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
         single_encoder_fitters = [self.single_encoder_factory.create({'x_cat': TensorInfo(cat_sizes=[cat_sz]),
                                                                       'y': tensor_infos['y']})
                                   for cat_sz in x_cat_sizes]
