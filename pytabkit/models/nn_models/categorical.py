@@ -155,6 +155,9 @@ class EncodingFactory(FitterFactory):
             return IdentityFitter()
 
         x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
+
+        print("===> x_cat_sizes: ", x_cat_sizes)
+
         single_encoder_fitters = [self.single_encoder_factory.create({'x_cat': TensorInfo(cat_sizes=[cat_sz]),
                                                                       'y': tensor_infos['y']})
                                   for cat_sz in x_cat_sizes]
