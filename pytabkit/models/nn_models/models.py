@@ -87,17 +87,19 @@ class PreprocessingFactory(FitterFactory):
         cat_cardinalities = self.config.get('cat_cardinalities', None)
 
         print("===> cat_cardinalities: ", cat_cardinalities)
+        print("===> tensor_infos: ", tensor_infos)
+        print("===> 'x_cat' in tensor_infos: ", 'x_cat' in tensor_infos)
 
         # Override tensor_infos with predefined cardinalities if provided
         if cat_cardinalities is not None and 'x_cat' in tensor_infos:
             print("==> overriding", tensor_infos['x_cat'].get_cat_sizes(), "with", cat_cardinalities)
             tensor_infos = dict(tensor_infos)  # Make a copy to avoid modifying original
             
-            # Get the old TensorInfo and replace only cat_sizes
+            # Preserve feat_shape from original, override cat_sizes
             old_x_cat = tensor_infos['x_cat']
             tensor_infos['x_cat'] = TensorInfo(
-                cat_sizes=cat_cardinalities,
-                feat_shape=old_x_cat.feat_shape if hasattr(old_x_cat, 'feat_shape') else None,
+                feat_shape=old_x_cat.feat_shape,
+                cat_sizes=cat_cardinalities
             )
             print("==> AFTER:", tensor_infos['x_cat'].get_cat_sizes())
 
