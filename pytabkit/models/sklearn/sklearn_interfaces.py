@@ -90,6 +90,7 @@ class RealMLPConstructorMixin:
                  use_best_mean_epoch_for_cv: Optional[bool] = None,
                  n_ens: Optional[int] = None,
                  ens_av_before_softmax: Optional[int] = None,
+                 cat_cardinalities: Optional[list[int]] = None,
                  ):
         """
         Constructor for RealMLP, using the default parameters from RealMLP-TD.
@@ -338,6 +339,7 @@ class RealMLPConstructorMixin:
         self.use_best_mean_epoch_for_cv = use_best_mean_epoch_for_cv
         self.n_ens = n_ens
         self.ens_av_before_softmax = ens_av_before_softmax
+        self.cat_cardinalities = cat_cardinalities
 
 
 class RealMLP_TD_Classifier(RealMLPConstructorMixin, AlgInterfaceClassifier):

@@ -84,9 +84,11 @@ class PreprocessingFactory(FitterFactory):
     def _create(self, tensor_infos: Dict[str, TensorInfo]) -> Fitter:
         tfm_factories = []
 
+        cat_cardinalities = self.config.get('cat_cardinalities', None)
+
         for tfm in self.config.get('tfms', []):
             if tfm == 'one_hot':
-                tfm_factories.append(EncodingFactory(SingleOneHotFactory(**self.config), enc_output_name='x_one_hot'))
+                tfm_factories.append(EncodingFactory(SingleOneHotFactory(**self.config), cat_cardinalities=cat_cardinalities))
                 tfm_factories.append(RenameTensorFactory(old_name='x_one_hot', new_name='x_cont'))
             elif tfm == 'median_center':
                 tfm_factories.append(MedianCenterFactory(**self.config))
@@ -100,7 +102,7 @@ class PreprocessingFactory(FitterFactory):
             elif tfm == 'mean_center':
                 tfm_factories.append(MeanCenterFactory(**self.config))
             elif tfm == 'embedding':
-                tfm_factories.append(EncodingFactory(SingleEmbeddingFactory(**self.config)).add_scope('emb'))
+                tfm_factories.append(EncodingFactory(SingleEmbeddingFactory(**self.config), cat_cardinalities=cat_cardinalities))
             elif tfm == 'global_scale_normalize':
                 tfm_factories.append(GlobalScaleNormalizeFactory(**self.config))
             elif tfm == 'l2_normalize':
@@ -114,9 +116,9 @@ class PreprocessingFactory(FitterFactory):
             elif tfm == 'circle_coding':
                 tfm_factories.append(CircleCodingFactory(**self.config))
             elif tfm == 'ordinal_encoding':
-                tfm_factories.append(EncodingFactory(SingleOrdinalEncodingFactory(**self.config)))
+                tfm_factories.append(EncodingFactory(SingleOrdinalEncodingFactory(**self.config), cat_cardinalities=cat_cardinalities))
             elif tfm == 'target_encoding':
-                tfm_factories.append(EncodingFactory(SingleTargetEncodingFactory(**self.config)))
+                tfm_factories.append(EncodingFactory(SingleTargetEncodingFactory(**self.config), cat_cardinalities=cat_cardinalities))
             elif tfm == 'kdi':
                 from kditransform import KDITransformer
                 tfm = KDITransformer(alpha=self.config.get('kdi_alpha', 1.0),
@@ -135,7 +137,7 @@ class PreprocessingFactory(FitterFactory):
 
         # old interface, using 'tfms' is preferred
         if self.config.get('use_one_hot', False):
-            tfm_factories.append(EncodingFactory(SingleOneHotFactory(**self.config)))
+            tfm_factories.append(EncodingFactory(SingleOneHotFactory(**self.config), cat_cardinalities=cat_cardinalities))
         if self.config.get('use_median_center', False):
             tfm_factories.append(MedianCenterFactory(**self.config))
         if self.config.get('use_robust_scale', False):
@@ -147,7 +149,7 @@ class PreprocessingFactory(FitterFactory):
         if self.config.get('use_mean_center', False):
             tfm_factories.append(MeanCenterFactory(**self.config))
         if self.config.get('use_embedding', False):
-            tfm_factories.append(EncodingFactory(SingleEmbeddingFactory(**self.config)).add_scope('emb'))
+            tfm_factories.append(EncodingFactory(SingleEmbeddingFactory(**self.config)).add_scope('emb'. cat_cardinalitites))
         if self.config.get('use_global_scale_normalize', False):
             tfm_factories.append(GlobalScaleNormalizeFactory(**self.config))
 
