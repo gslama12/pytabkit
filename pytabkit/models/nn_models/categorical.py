@@ -152,12 +152,14 @@ class EncodingFactory(FitterFactory):
         self.cat_cardinalities = cat_cardinalities
 
     def _create(self, tensor_infos):
+        print("==> cat_cardinalities in EncodingFactory: ", self.cat_cardinalities)
+        print("==> tensor_infos['x_cat'].get_cat_sizes(): ", tensor_infos['x_cat'].get_cat_sizes() if 'x_cat' in tensor_infos else 'x_cat not in tensor_infos')
+
         if 'x_cat' not in tensor_infos or tensor_infos['x_cat'].get_n_features() == 0:
             return IdentityFitter()
 
         if self.cat_cardinalities is not None:
             # use provided cardinalities
-            print("==> using", self.cat_cardinalities)
             x_cat_sizes = np.array(self.cat_cardinalities) 
         else:
             # default behavior
