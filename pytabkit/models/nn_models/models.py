@@ -86,8 +86,11 @@ class PreprocessingFactory(FitterFactory):
 
         cat_cardinalities = self.config.get('cat_cardinalities', None)
 
+        print("===> cat_cardinalities: ", cat_cardinalities)
+
         # Override tensor_infos with predefined cardinalities if provided
         if cat_cardinalities is not None and 'x_cat' in tensor_infos:
+            print("==> overriding", tensor_infos['x_cat'].get_cat_sizes(), "with", cat_cardinalities)
             tensor_infos = dict(tensor_infos)  # Make a copy to avoid modifying original
             tensor_infos['x_cat'] = TensorInfo(cat_sizes=cat_cardinalities)
 
