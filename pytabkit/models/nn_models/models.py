@@ -92,7 +92,14 @@ class PreprocessingFactory(FitterFactory):
         if cat_cardinalities is not None and 'x_cat' in tensor_infos:
             print("==> overriding", tensor_infos['x_cat'].get_cat_sizes(), "with", cat_cardinalities)
             tensor_infos = dict(tensor_infos)  # Make a copy to avoid modifying original
-            tensor_infos['x_cat'] = TensorInfo(cat_sizes=cat_cardinalities)
+            
+            # Get the old TensorInfo and replace only cat_sizes
+            old_x_cat = tensor_infos['x_cat']
+            tensor_infos['x_cat'] = TensorInfo(
+                cat_sizes=cat_cardinalities,
+                feat_shape=old_x_cat.feat_shape if hasattr(old_x_cat, 'feat_shape') else None,
+            )
+            print("==> AFTER:", tensor_infos['x_cat'].get_cat_sizes())
 
         for tfm in self.config.get('tfms', []):
             if tfm == 'one_hot':
