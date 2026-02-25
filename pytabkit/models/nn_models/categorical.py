@@ -145,20 +145,20 @@ class EncodingFitter(Fitter):
 
 
 class EncodingFactory(FitterFactory):
-    def __init__(self, single_encoder_factory, enc_output_name: str = 'x_cont', cat_cardinalitites: Optional[List[int]] = None):
+    def __init__(self, single_encoder_factory, enc_output_name: str = 'x_cont', cat_cardinalities: Optional[List[int]] = None):
         super().__init__()
         self.single_encoder_factory = single_encoder_factory
         self.enc_output_name = enc_output_name
-        self.cat_cardinalitites = cat_cardinalitites
+        self.cat_cardinalities = cat_cardinalities
 
     def _create(self, tensor_infos):
         if 'x_cat' not in tensor_infos or tensor_infos['x_cat'].get_n_features() == 0:
             return IdentityFitter()
 
-        if self.cat_cardinalitites is not None:
+        if self.cat_cardinalities is not None:
             # use provided cardinalities
-            print("==> using", self.cat_cardinalitites)
-            x_cat_sizes = np.array(self.cat_cardinalitites) 
+            print("==> using", self.cat_cardinalities)
+            x_cat_sizes = np.array(self.cat_cardinalities) 
         else:
             # default behavior
             x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
