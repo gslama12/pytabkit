@@ -86,6 +86,11 @@ class PreprocessingFactory(FitterFactory):
 
         cat_cardinalities = self.config.get('cat_cardinalities', None)
 
+        # Override tensor_infos with predefined cardinalities if provided
+        if cat_cardinalities is not None and 'x_cat' in tensor_infos:
+            tensor_infos = dict(tensor_infos)  # Make a copy to avoid modifying original
+            tensor_infos['x_cat'] = TensorInfo(cat_sizes=cat_cardinalities)
+
         for tfm in self.config.get('tfms', []):
             if tfm == 'one_hot':
                 tfm_factories.append(EncodingFactory(SingleOneHotFactory(**self.config), cat_cardinalities=cat_cardinalities))
