@@ -348,10 +348,7 @@ class RealMLP_TD_Classifier(RealMLPConstructorMixin, AlgInterfaceClassifier):
     """
 
     def _get_default_params(self):
-        default = DefaultParams.RealMLP_TD_CLASS.copy()
-        # Add cat_cardinalities with None as default
-        default['cat_cardinalities'] = None
-        return default
+        return DefaultParams.RealMLP_TD_CLASS
 
     def _create_alg_interface(self, n_cv: int) -> AlgInterface:
         return NNAlgInterface(**self.get_config())

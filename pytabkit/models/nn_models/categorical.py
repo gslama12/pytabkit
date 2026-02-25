@@ -160,6 +160,7 @@ class EncodingFactory(FitterFactory):
 
         if self.cat_cardinalities is not None:
             # use provided cardinalities
+            print("===> Using provided cat_cardinalities: ", self.cat_cardinalities)
             x_cat_sizes = np.array(self.cat_cardinalities) 
         else:
             # default behavior
