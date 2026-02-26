@@ -73,11 +73,12 @@ class EncodingLayer(Layer):
 
 
 class EncodingFitter(Fitter):
-    def __init__(self, single_encoder_fitters: List[Fitter], enc_output_name: str = 'x_cont', **config):
+    def __init__(self, single_encoder_fitters: List[Fitter], enc_output_name: str = 'x_cont', x_cat_sizes=None, **config):
         super().__init__(needs_tensors=any([enc.needs_tensors for enc in single_encoder_fitters]),
                          is_individual=any([enc.is_individual for enc in single_encoder_fitters]))
         self.single_encoder_fitters = single_encoder_fitters
         self.enc_output_name = enc_output_name  # allow to have something other than x_cont
+        self.x_cat_sizes = x_cat_sizes
         assert enc_output_name != 'x_cat'
 
     def get_n_params(self, tensor_infos: Dict[str, TensorInfo]) -> int:
@@ -120,9 +121,7 @@ class EncodingFitter(Fitter):
                                      remove_keys='x_cat')
 
     def _fit(self, ds: DictDataset) -> Layer:
-        # x_cat_sizes = ds.tensor_infos['x_cat'].get_cat_sizes().numpy()
-        x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
-
+        x_cat_sizes = self.x_cat_sizes if self.x_cat_sizes is not None else ds.tensor_infos['x_cat'].get_cat_sizes().numpy()
         print("==> cat_cardinalities EncodingFitter: ", x_cat_sizes)
 
         enc_layers = []
@@ -165,7 +164,7 @@ class EncodingFactory(FitterFactory):
         single_encoder_fitters = [self.single_encoder_factory.create({'x_cat': TensorInfo(cat_sizes=[cat_sz]),
                                                                       'y': tensor_infos['y']})
                                   for cat_sz in x_cat_sizes]
-        return EncodingFitter(single_encoder_fitters, enc_output_name=self.enc_output_name)
+        return EncodingFitter(single_encoder_fitters, enc_output_name=self.enc_output_name, x_cat_sizes=x_cat_sizes)
 
 # ----- One-Hot ------
 
