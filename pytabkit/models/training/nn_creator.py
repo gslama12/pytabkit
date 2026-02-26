@@ -227,8 +227,15 @@ class NNCreator:
         return callbacks
 
     def create_dataloaders(self, ds: DictDataset):
-        ds = ds.to(self.device_info)
+        # Preprocessing on pot. different device
+        ds = ds.to(self.data_preprocessing_device)
+        self.static_model = self.static_model.to(self.data_preprocessing_device)
         ds = self.static_model(ds)
+
+        # Now move both data and static_model to the trainng device for dataloaders
+        ds = ds.to(self.device_info)
+        self.static_model = self.static_model.to(self.device_info)
+
         batch_size = self.config.get('batch_size', 256)
         n_ens = self.config.get('n_ens', 1)
         if batch_size == 'auto':
