@@ -239,7 +239,7 @@ class SingleOneHotFitter(Fitter):
 
 
 class SingleOneHotFactory(SingleEncodingFactory):
-    def __init__(self, use_missing_zero=True, bin_onoff=(1.0, 0.0), multi_onoff=(1.0, 0.0), min_one_hot_cat_size=0,
+    def __init__(self, use_missing_zero=False, bin_onoff=(1.0, 0.0), multi_onoff=(1.0, 0.0), min_one_hot_cat_size=0,
                  max_one_hot_cat_size=-1, max_one_hot_size_by_n_classes=False, use_1d_binary_onehot: bool = True,
                  **config):
         super().__init__(create_fitter=lambda tensor_infos:
