@@ -121,6 +121,9 @@ class EncodingFitter(Fitter):
 
     def _fit(self, ds: DictDataset) -> Layer:
         x_cat_sizes = ds.tensor_infos['x_cat'].get_cat_sizes().numpy()
+
+        print("==> cat_cardinalities EncodingFitter: ", x_cat_sizes)
+
         enc_layers = []
         for i in range(len(x_cat_sizes)):
             enc = self.single_encoder_fitters[i]
