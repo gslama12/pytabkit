@@ -98,16 +98,12 @@ class EncodingFitter(Fitter):
     def _sub_tensor_infos(self, tensor_infos):
         x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
 
-        print("==> cat_cardinalities EncodingFitter _sub_tensor_infos: ", x_cat_sizes)
-
         if 'y' in tensor_infos:
             return [{'x_cat': TensorInfo(cat_sizes=[cat_sz]), 'y': tensor_infos['y']} for cat_sz in x_cat_sizes]
         return [{'x_cat': TensorInfo(cat_sizes=[cat_sz])} for cat_sz in x_cat_sizes]
 
     def forward_tensor_infos(self, tensor_infos):
         x_cat_sizes = self.x_cat_sizes if self.x_cat_sizes is not None else tensor_infos['x_cat'].get_cat_sizes().numpy()
-
-        print("==> cat_cardinalities EncodingFitter forward_tensor_infos: ", x_cat_sizes)
 
         n_cont = tensor_infos[self.enc_output_name].get_n_features() \
             if self.enc_output_name in tensor_infos else 0
@@ -128,7 +124,6 @@ class EncodingFitter(Fitter):
 
     def _fit(self, ds: DictDataset) -> Layer:
         x_cat_sizes = self.x_cat_sizes if self.x_cat_sizes is not None else ds.tensor_infos['x_cat'].get_cat_sizes().numpy()
-        print("==> cat_cardinalities EncodingFitter fit: ", x_cat_sizes)
 
         enc_layers = []
         for i in range(len(x_cat_sizes)):

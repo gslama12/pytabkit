@@ -174,12 +174,6 @@ class NNFactory(FitterFactory):
 
         cat_cardinalities = self.config.get('cat_cardinalities', None)
 
-        print("==> n_cat: ", tensor_infos['x_cat'].get_n_features())
-        print("==> n_num: ", tensor_infos['x_cont'].get_n_features())
-        print("==> n_cat_passed: ", len(cat_cardinalities) if cat_cardinalities is not None else 'None')
-        print("==> sum(cat_cardinalities): ", sum(cat_cardinalities) if cat_cardinalities is not None else 'None')
-        print("==> expected features: ", tensor_infos['x_cont'].get_n_features() + (sum(cat_cardinalities) if cat_cardinalities is not None else 0))
-
         # Override tensor_infos with predefined cardinalities if provided
         if cat_cardinalities is not None and 'x_cat' in tensor_infos: 
             tensor_infos = dict(tensor_infos)  # Make a copy to avoid modifying original
