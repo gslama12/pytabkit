@@ -120,7 +120,8 @@ class EncodingFitter(Fitter):
                                      remove_keys='x_cat')
 
     def _fit(self, ds: DictDataset) -> Layer:
-        x_cat_sizes = ds.tensor_infos['x_cat'].get_cat_sizes().numpy()
+        # x_cat_sizes = ds.tensor_infos['x_cat'].get_cat_sizes().numpy()
+        x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
 
         print("==> cat_cardinalities EncodingFitter: ", x_cat_sizes)
 
