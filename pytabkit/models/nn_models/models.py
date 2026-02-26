@@ -191,6 +191,8 @@ class NNFactory(FitterFactory):
             # do it already here so it can get done once instead of per batch
             factories.append(EncodingFactory(SingleOneHotFactory(**self.config), enc_output_name='x_one_hot'))
 
+        print("==> x_one_hot ", tensor_infos['x_one_hot'].get_n_features())
+
         prep_factory = PreprocessingFactory(**self.config)
 
         num_emb_type = self.config.get('num_emb_type', None)
