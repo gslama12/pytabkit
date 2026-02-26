@@ -67,6 +67,8 @@ class NNCreator:
         # todo: allow preprocessing on CPU and then only put batches on GPU in data loader?
         gpu_devices = interface_resources.gpu_devices
         self.device_info = gpu_devices[0] if len(gpu_devices) > 0 else 'cpu'
+        self.data_preprocessing_device = self.config.get('data_preprocessing_device', 'cpu')
+        print(f'Using device {self.device_info} for training and {self.data_preprocessing_device} for data preprocessing')
 
         # the code below requires all splits to have the same number of sub-splits
         assert np.all([idxs_list[i].train_idxs.shape[0] == idxs_list[0].train_idxs.shape[0]
@@ -107,11 +109,13 @@ class NNCreator:
         return train_criterion, val_metric_names
 
     def create_model(self, ds: DictDataset, idxs_list: List[SplitIdxs]):
-        ds = ds.to(self.device_info)
+        ds = ds.to(self.data_preprocessing_device)
         # Create static model
         model_fitter = self.factory.create(ds.tensor_infos)
         static_fitter, dynamic_fitter = model_fitter.split_off_dynamic()
         self.static_model, ds = static_fitter.fit_transform(ds)
+
+        ds = ds.to(self.device_info)  # ensure is ds on train device after transformations are complete.
 
         # in the single split case, we can already apply static fitters to the dataset
         is_single_split = len(idxs_list) == 1 and idxs_list[0].n_trainval_splits == 1

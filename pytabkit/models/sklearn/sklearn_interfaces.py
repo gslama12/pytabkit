@@ -91,6 +91,7 @@ class RealMLPConstructorMixin:
                  n_ens: Optional[int] = None,
                  ens_av_before_softmax: Optional[int] = None,
                  cat_cardinalities: Optional[list[int]] = None,
+                 data_preprocessing_device: Optional[str] = None
                  ):
         """
         Constructor for RealMLP, using the default parameters from RealMLP-TD.
@@ -340,6 +341,7 @@ class RealMLPConstructorMixin:
         self.n_ens = n_ens
         self.ens_av_before_softmax = ens_av_before_softmax
         self.cat_cardinalities = cat_cardinalities
+        self.data_preprocessing_device = data_preprocessing_device
 
 
 class RealMLP_TD_Classifier(RealMLPConstructorMixin, AlgInterfaceClassifier):

@@ -93,7 +93,9 @@ class NNAlgInterface(AlgInterface):
         # todo: allow preprocessing on CPU and then only put batches on GPU in data loader?
         gpu_devices = interface_resources.gpu_devices
         self.device = gpu_devices[0] if len(gpu_devices) > 0 else 'cpu'
-        ds = ds.to(self.device)
+        
+        preprocessing_device = self.config.get('data_preprocessing_device', 'cpu')
+        ds = ds.to(preprocessing_device)
 
         fit_params = self.fit_params
         if self.fit_params is None and 'stop_epoch' in self.config:
