@@ -73,7 +73,7 @@ class EncodingLayer(Layer):
 
 
 class EncodingFitter(Fitter):
-    def __init__(self, single_encoder_fitters: List[Fitter], enc_output_name: str = 'x_cont', x_cat_sizes=None, **config):
+    def __init__(self, single_encoder_fitters: List[Fitter], enc_output_name: str = 'x_cont', x_cat_sizes=None):
         super().__init__(needs_tensors=any([enc.needs_tensors for enc in single_encoder_fitters]),
                          is_individual=any([enc.is_individual for enc in single_encoder_fitters]))
         self.single_encoder_fitters = single_encoder_fitters
@@ -97,12 +97,18 @@ class EncodingFitter(Fitter):
 
     def _sub_tensor_infos(self, tensor_infos):
         x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
+
+        print("==> cat_cardinalities EncodingFitter _sub_tensor_infos: ", x_cat_sizes)
+
         if 'y' in tensor_infos:
             return [{'x_cat': TensorInfo(cat_sizes=[cat_sz]), 'y': tensor_infos['y']} for cat_sz in x_cat_sizes]
         return [{'x_cat': TensorInfo(cat_sizes=[cat_sz])} for cat_sz in x_cat_sizes]
 
     def forward_tensor_infos(self, tensor_infos):
         x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
+
+        print("==> cat_cardinalities EncodingFitter forward_tensor_infos: ", x_cat_sizes)
+
         n_cont = tensor_infos[self.enc_output_name].get_n_features() \
             if self.enc_output_name in tensor_infos else 0
         out_cat_sizes = []
@@ -122,7 +128,7 @@ class EncodingFitter(Fitter):
 
     def _fit(self, ds: DictDataset) -> Layer:
         x_cat_sizes = self.x_cat_sizes if self.x_cat_sizes is not None else ds.tensor_infos['x_cat'].get_cat_sizes().numpy()
-        print("==> cat_cardinalities EncodingFitter: ", x_cat_sizes)
+        print("==> cat_cardinalities EncodingFitter fit: ", x_cat_sizes)
 
         enc_layers = []
         for i in range(len(x_cat_sizes)):
@@ -242,7 +248,7 @@ class SingleOneHotFitter(Fitter):
 
 
 class SingleOneHotFactory(SingleEncodingFactory):
-    def __init__(self, use_missing_zero=False, bin_onoff=(1.0, 0.0), multi_onoff=(1.0, 0.0), min_one_hot_cat_size=0,
+    def __init__(self, use_missing_zero=True, bin_onoff=(1.0, 0.0), multi_onoff=(1.0, 0.0), min_one_hot_cat_size=0,
                  max_one_hot_cat_size=-1, max_one_hot_size_by_n_classes=False, use_1d_binary_onehot: bool = True,
                  **config):
         super().__init__(create_fitter=lambda tensor_infos:
