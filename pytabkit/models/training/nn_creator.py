@@ -115,8 +115,6 @@ class NNCreator:
         static_fitter, dynamic_fitter = model_fitter.split_off_dynamic()
         self.static_model, ds = static_fitter.fit_transform(ds)
 
-        ds = ds.to(self.device_info)  # ensure is ds on train device after transformations are complete.
-
         # in the single split case, we can already apply static fitters to the dataset
         is_single_split = len(idxs_list) == 1 and idxs_list[0].n_trainval_splits == 1
 
@@ -170,6 +168,7 @@ class NNCreator:
         # print(f'{models[0]=}')
         # for p in models[0].parameters():
         #     print(str(p.context.scope))
+        ds = ds.to(self.device_info)  # ensure is ds on train device after preprocessing is done
         vectorized_model = models[0].stack(models).to(self.device_info)
 
         fixed_init_params: Optional[List[Variable]] = self.config.get('fixed_init_params', None)
