@@ -84,25 +84,6 @@ class PreprocessingFactory(FitterFactory):
     def _create(self, tensor_infos: Dict[str, TensorInfo]) -> Fitter:
         tfm_factories = []
 
-        cat_cardinalities = self.config.get('cat_cardinalities', None)
-
-        print("===> cat_cardinalities: ", cat_cardinalities)
-        print("===> tensor_infos: ", tensor_infos)
-        print("===> 'x_cat' in tensor_infos: ", 'x_cat' in tensor_infos)
-
-        # Override tensor_infos with predefined cardinalities if provided
-        if cat_cardinalities is not None and 'x_cat' in tensor_infos:
-            print("==> overriding", tensor_infos['x_cat'].get_cat_sizes(), "with", cat_cardinalities)
-            tensor_infos = dict(tensor_infos)  # Make a copy to avoid modifying original
-            
-            # Preserve feat_shape from original, override cat_sizes
-            old_x_cat = tensor_infos['x_cat']
-            tensor_infos['x_cat'] = TensorInfo(
-                feat_shape=old_x_cat.feat_shape,
-                cat_sizes=cat_cardinalities
-            )
-            print("==> AFTER:", tensor_infos['x_cat'].get_cat_sizes())
-
         for tfm in self.config.get('tfms', []):
             if tfm == 'one_hot':
                 tfm_factories.append(EncodingFactory(SingleOneHotFactory(**self.config)))
@@ -190,6 +171,17 @@ class NNFactory(FitterFactory):
 
         factories = []
         net_factories = []
+
+        cat_cardinalities = self.config.get('cat_cardinalities', None)
+
+        # Override tensor_infos with predefined cardinalities if provided
+        if cat_cardinalities is not None and 'x_cat' in tensor_infos: 
+            tensor_infos = dict(tensor_infos)  # Make a copy to avoid modifying original
+            old_x_cat = tensor_infos['x_cat']  # Preserve feat_shape from original, override cat_sizes
+            tensor_infos['x_cat'] = TensorInfo(
+                feat_shape=old_x_cat.feat_shape,
+                cat_sizes=cat_cardinalities
+            )
 
         if 'one_hot' in self.config.get('tfms', []) or self.config.get('use_one_hot', False):
             # do it already here so it can get done once instead of per batch
