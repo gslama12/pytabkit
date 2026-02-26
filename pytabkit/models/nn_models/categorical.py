@@ -154,8 +154,6 @@ class EncodingFactory(FitterFactory):
         if 'x_cat' not in tensor_infos or tensor_infos['x_cat'].get_n_features() == 0:
             return IdentityFitter()
 
-        print("==> cat_sizes: ", tensor_infos['x_cat'].get_cat_sizes())
-
         x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
 
         single_encoder_fitters = [self.single_encoder_factory.create({'x_cat': TensorInfo(cat_sizes=[cat_sz]),

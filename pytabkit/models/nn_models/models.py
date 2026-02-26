@@ -84,9 +84,6 @@ class PreprocessingFactory(FitterFactory):
     def _create(self, tensor_infos: Dict[str, TensorInfo]) -> Fitter:
         tfm_factories = []
 
-        print("==> tensor_infos num", tensor_infos['x_cont'].get_n_features())
-        print("==> x_one_hot ", tensor_infos['x_one_hot'].get_n_features())
-
         for tfm in self.config.get('tfms', []):
             if tfm == 'one_hot':
                 tfm_factories.append(EncodingFactory(SingleOneHotFactory(**self.config)))
@@ -174,8 +171,6 @@ class NNFactory(FitterFactory):
 
         factories = []
         net_factories = []
-
-        print("==> tensor_infos num original", tensor_infos['x_cont'].get_n_features())
 
         cat_cardinalities = self.config.get('cat_cardinalities', None)
 
