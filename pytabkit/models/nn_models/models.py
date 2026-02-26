@@ -163,7 +163,6 @@ class NNFactory(FitterFactory):
             # dirty fix to not miss out on categorical values here,
             # but do no use this as a default in PreprocessingFactory since that is also used for GBDTs
             # that can have native categorical processing capabilities
-            print("==> WARN")
             self.config['use_embedding'] = True
 
     def _create_transform(self, tensor_infos: Dict[str, TensorInfo]) -> Tuple[Fitter, Dict[str, TensorInfo]]:
