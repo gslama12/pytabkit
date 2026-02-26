@@ -105,7 +105,7 @@ class EncodingFitter(Fitter):
         return [{'x_cat': TensorInfo(cat_sizes=[cat_sz])} for cat_sz in x_cat_sizes]
 
     def forward_tensor_infos(self, tensor_infos):
-        x_cat_sizes = tensor_infos['x_cat'].get_cat_sizes().numpy()
+        x_cat_sizes = self.x_cat_sizes if self.x_cat_sizes is not None else tensor_infos['x_cat'].get_cat_sizes().numpy()
 
         print("==> cat_cardinalities EncodingFitter forward_tensor_infos: ", x_cat_sizes)
 
