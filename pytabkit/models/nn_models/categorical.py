@@ -223,11 +223,16 @@ class SingleOneHotFitter(Fitter):
         self.use_1d_binary_onehot = use_1d_binary_onehot
 
     def forward_tensor_infos(self, tensor_infos):
+        print(f"==> cat_size before one-hot encoding: {tensor_infos['x_cat'].get_cat_sizes()[0].item()}")
+
         cat_size = tensor_infos['x_cat'].get_cat_sizes()[0].item()
         if self.use_missing_zero:
             cat_size -= 1
         if cat_size == 2 and self.use_1d_binary_onehot:
             cat_size = 1
+            
+        print(f"==> cat_size after one-hot encoding: {cat_size}")
+
         return utils.update_dict(tensor_infos, {'x_cont': TensorInfo(feat_shape=[cat_size])}, remove_keys='x_cat')
 
     def _fit(self, ds: DictDataset) -> Layer:
