@@ -85,6 +85,7 @@ class PreprocessingFactory(FitterFactory):
         tfm_factories = []
 
         print("==> tensor_infos num", tensor_infos['x_cont'].get_n_features())
+        print("==> x_one_hot ", tensor_infos['x_one_hot'].get_n_features())
 
         for tfm in self.config.get('tfms', []):
             if tfm == 'one_hot':
@@ -190,8 +191,6 @@ class NNFactory(FitterFactory):
         if 'one_hot' in self.config.get('tfms', []) or self.config.get('use_one_hot', False):
             # do it already here so it can get done once instead of per batch
             factories.append(EncodingFactory(SingleOneHotFactory(**self.config), enc_output_name='x_one_hot'))
-
-        print("==> x_one_hot ", tensor_infos['x_one_hot'].get_n_features())
 
         prep_factory = PreprocessingFactory(**self.config)
 
