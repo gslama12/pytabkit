@@ -92,6 +92,7 @@ class TabMSubSplitInterface(SingleSplitAlgInterface):
 
         # Specify cat_cardinalities in the config
         cat_cardinalities = self.config.get('cat_cardinalities', None)
+
         if cat_cardinalities is None:
             # Default behaviour as fallback
             cat_cardinalities = ds.tensor_infos['x_cat'].get_cat_sizes().numpy().tolist()
@@ -141,7 +142,11 @@ class TabMSubSplitInterface(SingleSplitAlgInterface):
             ds_parts[part] = ds_parts[part].to(device)
 
         # mask of which columns are not constant
-        self.num_col_mask_ = ~torch.all(x_cont_train == x_cont_train[0:1, :], dim=0)
+        if self.config.get('remove_constant_cols', False):
+            self.num_col_mask_ = ~torch.all(x_cont_train == x_cont_train[0:1, :], dim=0)
+        else:
+            # NOP, keep all columns
+            self.num_col_mask_ = torch.ones(x_cont_train.shape[1], dtype=torch.bool)
 
         for part in part_names:
             ds_parts[part].tensors['x_cont'] = ds_parts[part].tensors['x_cont'][:, self.num_col_mask_]
@@ -164,9 +169,11 @@ class TabMSubSplitInterface(SingleSplitAlgInterface):
 
             Y_train = (Y_train - self.y_mean_) / (self.y_std_ + 1e-30)
 
+        n_cat = len(cat_cardinalities) if cat_cardinalities is not None else ds.tensor_infos['x_cat'].get_n_features()
+
         data = {part: utils.join_dicts(
             dict(x_cont=ds_parts[part].tensors['x_cont'], y=ds_parts[part].tensors['y']),
-            dict(x_cat=ds_parts[part].tensors['x_cat']) if ds.tensor_infos['x_cat'].get_n_features() > 0 else dict())
+            dict(x_cat=ds_parts[part].tensors['x_cat']) if n_cat > 0 else dict())
                 for part in part_names}
 
         # adapted from https://github.com/yandex-research/tabm/blob/main/example.ipynb
