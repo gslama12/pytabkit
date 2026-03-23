@@ -50,10 +50,11 @@ def get_lignting_accel_and_devices(device: str):
 
 
 class NNAlgInterface(AlgInterface):
-    def __init__(self, fit_params: Optional[List[Dict[str, Any]]] = None, **config):
+    def __init__(self, fit_params: Optional[List[Dict[str, Any]]] = None, warm_start: bool = False, **config):
         super().__init__(fit_params=fit_params, **config)
         self.model: Optional[TabNNModule] = None
         self.device = None
+        self.warm_start = warm_start
 
     def get_refit_interface(self, n_refit: int, fit_params: Optional[List[Dict]] = None) -> 'AlgInterface':
         return NNAlgInterface(fit_params if fit_params is not None else self.fit_params, **self.config)
@@ -102,9 +103,23 @@ class NNAlgInterface(AlgInterface):
             fit_params = [dict(stop_epoch=self.config['stop_epoch'])] * len(idxs_list)
 
         n_epochs = self.config.get('n_epochs', 256)
-        self.model = TabNNModule(**utils.join_dicts({'n_epochs': 256, 'logger': logger}, self.config),
-                                 fit_params=fit_params)
-        self.model.compile_model(ds, idxs_list, interface_resources)
+
+        # Check for warm_start (needed for FL)
+        if self.warm_start:
+            # Reuse existing model, just update data and reset progress
+            print("INFO: PytabkitModel is using warm_start -> continuing training from existing model")
+            assert self.model, "self.model cannot be None when using warm start!"            
+            # Reset epoch counter, validation history, etc.
+            self.model.reset_training_progress()  
+            # Update dataloaders with new data
+            self.model.update_dataloaders_and_split_indices(ds, idxs_list, interface_resources)
+        else:
+            # Default behaviour
+            self.model = TabNNModule(
+                **utils.join_dicts({'n_epochs': 256, 'logger': logger}, self.config),
+                fit_params=fit_params
+            )
+            self.model.compile_model(ds, idxs_list, interface_resources)
 
         pl_accelerator, pl_devices = get_lignting_accel_and_devices(self.device)
 

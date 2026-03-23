@@ -302,7 +302,15 @@ class AlgInterfaceEstimator(BaseEstimator):
         # set n_features_in_ as required by https://scikit-learn.org/stable/developers/develop.html
         self.n_features_in_ = ds.tensor_infos['x_cont'].get_n_features() + ds.tensor_infos['x_cat'].get_n_features()
 
-        self.cv_alg_interface_ = self._create_alg_interface(n_cv=n_cv)
+        # Check if we should reuse the existing interface for warm_start
+        warm_start = self.get_params().get('warm_start', False)
+
+        if warm_start:
+            # Reuse existing interface (will be set externally)
+            assert self.cv_alg_interface_, "cv_alg_interface_ can not be None if warm_start is specified!"
+        else:
+            # Create new interface (original behavior)
+            self.cv_alg_interface_ = self._create_alg_interface(n_cv=n_cv)
 
         # ----- get random seeds -----
         random_state = params.get('random_state', None)

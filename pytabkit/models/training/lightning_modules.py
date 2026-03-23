@@ -78,6 +78,42 @@ class TabNNModule(pl.LightningModule):
 
         self.config = config
 
+    def reset_training_progress(self):
+        """
+        Reset training progress trackers while preserving model weights.
+        Used for warm_start/continued training in federated learning.
+        """
+        # Reset epoch counter
+        self.progress = LearnerProgress()
+        self.progress.max_epochs = self.config.get('n_epochs', 256)
+
+        # Reset validation tracking
+        self.val_preds = []
+        self.epoch_mean_val_errors = None
+        self.best_mean_val_errors = None
+        self.best_mean_val_epochs = None
+        self.best_val_errors = None
+        self.best_val_epochs = None
+        self.has_stopped_list = None
+
+        # Reset callbacks with checkpoints
+        self.callbacks = self.create_callbacks()
+        self.ckpt_callbacks = dict()
+    
+    def update_dataloaders_and_split_indices(self, ds: DictDataset, 
+                                             idxs_list: List[SplitIdxs], 
+                                             interface_resources: InterfaceResources):
+        """
+        Update dataloaders with new data/indices while preserving model architecture and weights.
+        Used for warm_start/continued training in federated learning.
+        """
+        # Store old split indices and extract new ones
+        self.creator.train_idxs = idxs_list[0].train_idxs
+        self.creator.val_idxs = idxs_list[0].val_idxs if idxs_list[0].val_idxs is not None else idxs_list[0].train_idxs
+        
+        # Recreate dataloaders with new data
+        self.train_dl, self.val_dl = self.creator.create_dataloaders(ds)
+
     def compile_model(self, ds: DictDataset, idxs_list: List[SplitIdxs], interface_resources: InterfaceResources):
         """
         Method to create the model and all other training dependencies given the dataset and the assigned resources.

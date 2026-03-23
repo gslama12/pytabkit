@@ -93,6 +93,7 @@ class RealMLPConstructorMixin:
                  cat_cardinalities: Optional[list[int]] = None,
                  data_preprocessing_device: Optional[str] = None,
                  use_embedding: Optional[bool] = None,
+                 warm_start: bool = False,
                  ):
         """
         Constructor for RealMLP, using the default parameters from RealMLP-TD.
@@ -344,6 +345,7 @@ class RealMLPConstructorMixin:
         self.cat_cardinalities = cat_cardinalities
         self.data_preprocessing_device = data_preprocessing_device
         self.use_embedding = use_embedding
+        self.warm_start = warm_start
 
 
 class RealMLP_TD_Classifier(RealMLPConstructorMixin, AlgInterfaceClassifier):
