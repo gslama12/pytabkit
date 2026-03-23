@@ -1819,6 +1819,7 @@ class TabMConstructorMixin:
                  n_num_features: Optional[int] = None,  
                  cat_cardinalities:Optional[List[int]] = None,
                  remove_constant_cols: Optional[bool] = False,
+                 warm_start: bool = False,
                  ):
         """
 
@@ -1921,6 +1922,7 @@ class TabMConstructorMixin:
         self.n_num_features = n_num_features
         self.cat_cardinalities = cat_cardinalities
         self.remove_constant_cols = remove_constant_cols
+        self.warm_start = warm_start
 
 
 class TabM_D_Classifier(TabMConstructorMixin, AlgInterfaceClassifier):

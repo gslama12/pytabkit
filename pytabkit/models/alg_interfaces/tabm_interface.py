@@ -43,6 +43,8 @@ def get_tabm_auto_batch_size(n_train: int) -> int:
 class TabMSubSplitInterface(SingleSplitAlgInterface):
     def __init__(self, fit_params: Optional[List[Dict[str, Any]]] = None, **config):
         super().__init__(fit_params=fit_params, **config)
+        self.warm_start = config.get('warm_start', False) 
+        self.model_ = None
 
     def get_refit_interface(self, n_refit: int, fit_params: Optional[List[Dict]] = None) -> 'AlgInterface':
         raise NotImplementedError()
@@ -204,37 +206,42 @@ class TabMSubSplitInterface(SingleSplitAlgInterface):
 
         # Choose one of the two configurations below.
 
-        # TabM
-        bins = None if num_emb_type != 'pwl' or n_cont_features == 0 else rtdl_num_embeddings.compute_bins(data['train']['x_cont'], n_bins=num_emb_n_bins)
-        d_out = n_classes if n_classes > 0 else 1
-        if train_metric_name is not None and train_metric_name.startswith('multi_pinball'):
-            d_out = train_metric_name.count(',')+1
-
-        model = Model(
-            n_num_features=n_cont_features,
-            cat_cardinalities=cat_cardinalities,
-            n_classes=d_out,
-            backbone={
-                'type': 'MLP',
-                'n_blocks': n_blocks if n_blocks != 'auto' else (3 if bins is None else 2),
-                'd_block': d_block,
-                'dropout': dropout,
-            },
-            bins=bins,
-            num_embeddings=(
-                None
-                if bins is None
-                else {
-                    'type': 'PiecewiseLinearEmbeddings',
-                    'd_embedding': d_embedding,
-                    'activation': False,
-                    'version': 'B',
-                }
-            ),
-            arch_type=arch_type,
-            k=tabm_k,
-            share_training_batches=share_training_batches,
-        ).to(device)
+        # TabM            
+        if self.warm_start:
+            print("INFO: TabM Model is using warm_start -> continuing training from existing model")
+            assert self.model_, "self.model_ cannot be None when using warm start!"
+            model = self.model_.to(device)               
+        else:
+            bins = None if num_emb_type != 'pwl' or n_cont_features == 0 else rtdl_num_embeddings.compute_bins(data['train']['x_cont'], n_bins=num_emb_n_bins)
+            d_out = n_classes if n_classes > 0 else 1
+            if train_metric_name is not None and train_metric_name.startswith('multi_pinball'):
+                d_out = train_metric_name.count(',')+1
+            
+            model = Model(
+                n_num_features=n_cont_features,
+                cat_cardinalities=cat_cardinalities,
+                n_classes=d_out,
+                backbone={
+                    'type': 'MLP',
+                    'n_blocks': n_blocks if n_blocks != 'auto' else (3 if bins is None else 2),
+                    'd_block': d_block,
+                    'dropout': dropout,
+                },
+                bins=bins,
+                num_embeddings=(
+                    None
+                    if bins is None
+                    else {
+                        'type': 'PiecewiseLinearEmbeddings',
+                        'd_embedding': d_embedding,
+                        'activation': False,
+                        'version': 'B',
+                    }
+                ),
+                arch_type=arch_type,
+                k=tabm_k,
+                share_training_batches=share_training_batches,
+            ).to(device)
 
         # import tabm
         # num_embeddings = None if bins is None else rtdl_num_embeddings.PiecewiseLinearEmbeddings(
